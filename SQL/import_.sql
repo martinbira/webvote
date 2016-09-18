@@ -73,6 +73,16 @@ CREATE TABLE IF NOT EXISTS `vote_cat_example_history` (
   KEY `vote_code` (`vote_code`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `vote_cat_example_list`
+--
+
+CREATE TABLE IF NOT EXISTS `vote_cat_example_list` (
+  `vote_id` int(11) NOT NULL,
+  PRIMARY KEY (`vote_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
