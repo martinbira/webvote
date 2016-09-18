@@ -110,7 +110,7 @@ CREATE TABLE IF NOT EXISTS `vote_codes_allocation_log` (
 
 CREATE TABLE IF NOT EXISTS `vote_users` (
   `username` varchar(20) NOT NULL,
-  `password` varchar(20) NOT NULL,
+  `password` varchar(32) NOT NULL,
   `priviledge` int(11) DEFAULT NULL,
   PRIMARY KEY (`username`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1 COMMENT='admin users';
