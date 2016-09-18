@@ -47,31 +47,46 @@ function check_vote_format($category, $str_vote)
     if ($ivote === 0)
 	return "Ogiltig röst (" . $str_vote . "), ej heltal";
 
-    //kontroller röst är i intervall för aktuell kategori (ex mellan 201-299 för grön)
+    //Har vi ett riktigt tal, verifiera att det är i rätt klass/kategori
     if ($ivote != -1){
-	$nrspan = unserialize(CONST_SETTING_CATEGORIES_NUMBERSPAN);
-	$curCatSpan = $nrspan[$category];
-	if ($curCatSpan != ""){
-	    
-	    $minmax = explode("-",$curCatSpan);
-	    if (count($minmax) == 2)
-	    {
-		$min = (int)$minmax[0];
-		$max = (int)$minmax[1];
-		if ($min != 0 && $max != 0)
-		{
-		    if ($ivote != -1 && ($ivote < $min || $ivote >$max))
-		    {
-			return "Ogiltig röst (" . $ivote . "), giltigt område är " . $min . "-" . $max;
-			
-		    }
-			    
+    	//Kontrollerar ifall tvälingen använder seriella nummer per kategori eller inte, CONST_SETTING_SERIALIZED_NUMBERS = true i _config.php
+	if(CONST_SETTING_SERIALIZED_NUMBERS){
+		$nrspan = unserialize(CONST_SETTING_CATEGORIES_NUMBERSPAN);
+		$curCatSpan = $nrspan[$category];
+		if ($curCatSpan != "")
+			{
+       		$minmax = explode("-",$curCatSpan);
+    		if (count($minmax) == 2)
+    			{
+				$min = (int)$minmax[0];
+				$max = (int)$minmax[1];
+				if ($min != 0 && $max != 0)
+					{
+	    			if ($ivote != -1 && ($ivote < $min || $ivote >$max))
+	    				{
+						return "Ogiltig röst. Nummer " . $ivote . " är ej i det giltiga området " . $min . "-" . $max;
+				    	}
+				}
+		    	}
 		}
-		
-	    }
+    	}
+	//Ifall tävlingen använder ren löpnummerlista och inte seriella nummer per kategori, CONST_SETTING_SERIALIZED_NUMBERS = false i _config.php
+	else{
+		include 'sqlopen_pdo.php';
+		$stmt = $db->prepare("SELECT vote_id from vote_cat_{$category}_list WHERE vote_id = :vote_id LIMIT 1" );
+	    	$stmt->bindValue(':vote_id', $ivote, PDO::PARAM_STR);
+	    	if ($stmt->execute()){
+			$row = $stmt->fetch(PDO::FETCH_ASSOC);
+				if (empty($row))
+				{
+					return "Ogiltig röst. Nummer " . $ivote . " tillhör ej denna klass.";
+				}
+			}
+		else
+	    	$stmt = null;
+		$db = null;	
 	}
-    }
-    return $ivote; //sucess
+    return $ivote; //success
 }
 //db helper, check if $category is blessed, use to eliminate injection when eg used as part of tablename
 function check_category($category)
