@@ -297,9 +297,13 @@ function ax_login($username,$password){
     $priv = 0;
     if(!empty($username) && !empty($password))
     {
+    	//Salta och hasha lösenordet
+    	$salt = "th1s1sasaltstr1ng123456789";
+	$tmpSlt = $password.$salt;
+	$passwordSalt = md5($tmpSlt);
 	include 'sqlopen_pdo.php';
 	$stmt = $db->prepare("SELECT username, priviledge from vote_users WHERE LOWER(username) = LOWER(?) AND password=? LIMIT 1" );
-	$stmt->execute(array($username,$password));
+	$stmt->execute(array($username,$passwordSalt));
 	$rows = $stmt->fetch(PDO::FETCH_ASSOC);
 	if(!empty($rows))
 	{
